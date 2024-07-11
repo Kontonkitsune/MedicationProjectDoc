@@ -9,13 +9,13 @@
         android:id="@+id/etMedicationName"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:hint="Medication Name" />
+        android:hint="Medication Name (e.g. Tylenol)" />
 
     <EditText
         android:id="@+id/etMedicationTime"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:hint="Medication Time" />
+        android:hint="Medication Time (e.g. 8:00 AM)" />
 
     <Button
         android:id="@+id/btnSaveMedication"

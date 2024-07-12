@@ -51,9 +51,9 @@ class AddMedicationActivity : AppCompatActivity() {
         if (cbMonday.isChecked) days.append("M ")
         if (cbTuesday.isChecked) days.append("T ")
         if (cbWednesday.isChecked) days.append("W ")
-        if (cbThursday.isChecked) days.append("T ")
+        if (cbThursday.isChecked) days.append("R ")
         if (cbFriday.isChecked) days.append("F ")
-        if (cbSaturday.isChecked) days.append("S ")
+        if (cbSaturday.isChecked) days.append("A ")
 
         val medication = Medication(
             name = medicationName,

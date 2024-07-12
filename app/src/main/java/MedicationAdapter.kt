@@ -62,9 +62,9 @@ class MedicationAdapter(context: Context, private var medications: MutableList<M
         setDayStyle(dayMonday, days.contains('M'))
         setDayStyle(dayTuesday, days.contains('T'))
         setDayStyle(dayWednesday, days.contains('W'))
-        setDayStyle(dayThursday, days.contains('T'))
+        setDayStyle(dayThursday, days.contains('R'))
         setDayStyle(dayFriday, days.contains('F'))
-        setDayStyle(daySaturday, days.contains('S'))
+        setDayStyle(daySaturday, days.contains('A'))
 
         takenCheckBox.setOnCheckedChangeListener { _, isChecked ->
             medication.taken = isChecked

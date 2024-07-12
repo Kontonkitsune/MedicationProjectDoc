@@ -1,6 +1,5 @@
 package com.example.reminder_data_flair
 
-import MedicationAdapter
 import android.content.Intent
 import android.os.Bundle
 import android.util.Log

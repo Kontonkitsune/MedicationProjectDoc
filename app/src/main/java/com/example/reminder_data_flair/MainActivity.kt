@@ -1,5 +1,6 @@
 package com.example.reminder_data_flair
 
+import android.annotation.SuppressLint
 import android.app.*
 import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
@@ -42,6 +43,7 @@ class MainActivity : AppCompatActivity()
         notificationManager.createNotificationChannel(channel)
     }
 
+    @SuppressLint("ScheduleExactAlarm")
     private fun scheduleNotification()
     {
         val intent = Intent(applicationContext, Notification::class.java)

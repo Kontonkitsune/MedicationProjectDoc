@@ -1,26 +1,94 @@
-<?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
     android:padding="16dp">
 
+    <TextView
+        android:id="@+id/tvMedicationName"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Medication Name"
+        android:textSize="18sp"
+        android:layout_marginBottom="8dp" />
+
     <EditText
         android:id="@+id/etMedicationName"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:hint="Medication Name (e.g. Tylenol)" />
+        android:hint="Enter medication name"
+        android:layout_marginBottom="16dp" />
+
+    <TextView
+        android:id="@+id/tvMedicationTime"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Medication Time"
+        android:textSize="18sp"
+        android:layout_marginBottom="8dp" />
 
     <EditText
         android:id="@+id/etMedicationTime"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:hint="Medication Time (e.g. 8:00 AM)" />
+        android:hint="Enter medication time"
+        android:layout_marginBottom="16dp" />
+
+    <!-- Checkboxes for days of the week -->
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Select Days"
+        android:textSize="18sp"
+        android:layout_marginBottom="8dp" />
+
+    <CheckBox
+        android:id="@+id/cbSunday"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Sunday" />
+
+    <CheckBox
+        android:id="@+id/cbMonday"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Monday" />
+
+    <CheckBox
+        android:id="@+id/cbTuesday"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Tuesday" />
+
+    <CheckBox
+        android:id="@+id/cbWednesday"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Wednesday" />
+
+    <CheckBox
+        android:id="@+id/cbThursday"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Thursday" />
+
+    <CheckBox
+        android:id="@+id/cbFriday"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Friday" />
+
+    <CheckBox
+        android:id="@+id/cbSaturday"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Saturday" />
 
     <Button
         android:id="@+id/btnSaveMedication"
-        android:layout_width="match_parent"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Save" />
+        android:text="Save Medication"
+        android:layout_marginTop="16dp" />
 
 </LinearLayout>

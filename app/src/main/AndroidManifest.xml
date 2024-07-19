@@ -6,6 +6,7 @@
     <uses-permission android:name="android.permission.SCHEDULE_EXACT_ALARM" />
 
     <application
+        android:name=".MyApp"
         android:allowBackup="true"
         android:dataExtractionRules="@xml/data_extraction_rules"
         android:fullBackupContent="@xml/backup_rules"
@@ -15,23 +16,31 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.ReminderDATA_FLAIR"
         tools:targetApi="31">
-        <activity
-            android:name="com.example.reminder_data_flair.MainActivity2"
-            android:exported="false" />
 
-        <receiver
-            android:name="com.example.reminder_data_flair.Notification"
-            android:enabled="true" />
+    <activity
+        android:name="com.example.reminder_data_flair.MainActivity2"
+        android:exported="false" />
 
-        <activity
-            android:name="com.example.reminder_data_flair.MainActivity"
-            android:exported="true">
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
+    <receiver
+        android:name="com.example.reminder_data_flair.Notification"
+        android:enabled="true" />
 
-                <category android:name="android.intent.category.LAUNCHER" />
-            </intent-filter>
-        </activity>
-    </application>
+    <activity
+        android:name="com.example.reminder_data_flair.MainActivity"
+        android:exported="true" />
 
-</manifest>
+    <activity
+        android:name="com.example.reminder_data_flair.DashboardActivity"
+        android:exported="true">
+        <intent-filter>
+            <action android:name="android.intent.action.MAIN" />
+            <category android:name="android.intent.category.LAUNCHER" />
+        </intent-filter>
+    </activity>
+
+    <activity
+        android:name="com.example.reminder_data_flair.AddMedicationActivity"
+        android:exported="true" />
+
+</application>
+    </manifest>

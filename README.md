@@ -36,6 +36,8 @@ Cloud storage:
 - Users can connect their app to an account, so that they can store their data on the cloud and sync it between devices.
 
 # Release Notes
+July 18th, 2024: While this is still a work in progress, we've made noticeable progress from the previous release. Now the dashboard is capable of displaying multiple medications, as well as displaying the name of the medication, and the time you wrote to take the medication. In addition, it will also show which days of the week you've selected to take the medications on the same display. The user can additionally add more medications to this form, though there is currently no way to remove or edit a prescription once it has been added. Additionally, the application can store the data between launches, so if you close the app, it will still retain your prescription data you've entered, and you can still see your medications displayed on the dashboard.
+
 June 27th, 2024: Currently, this is a work in progress, with most (All, at time of writing) of the code being from a tutorial found at https://projectgurukul.org/android-reminder-app/. 
 The code in the master branch comes from the main branch, pruned to include only the necessary files for running the program on Android Studio.
 Currently, this application only stores data per session, can only input one reminder at a time, and can only see the most recent reminder on a separate screen. There is also no way to get back to the second screen from the first.

@@ -2,66 +2,140 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:orientation="horizontal"
+    android:orientation="vertical"
     android:padding="8dp">
 
-    <TextView
-        android:id="@+id/tvMedicationName"
-        android:layout_width="0dp"
+    <!-- Header with medication details -->
+    <LinearLayout
+        android:id="@+id/llHeader"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_weight="1"
-        android:textSize="16sp" />
+        android:orientation="horizontal"
+        android:gravity="center_vertical">
 
-    <TextView
-        android:id="@+id/tvDaySunday"
-        android:layout_width="wrap_content"
+        <!-- Arrow for expand/collapse -->
+        <ImageView
+            android:id="@+id/ivArrow"
+            android:layout_width="24dp"
+            android:layout_height="24dp"
+            android:src="@drawable/ic_arrow_right"
+            android:contentDescription="@string/arrow_expand_collapse"
+            android:layout_marginEnd="8dp"/>
+
+        <!-- Medication Name -->
+        <TextView
+            android:id="@+id/tvMedicationName"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:textSize="16sp"
+            android:textColor="@android:color/black"
+            android:layout_marginEnd="8dp"/>
+
+        <!-- Days of the week -->
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:layout_marginEnd="16dp">
+
+            <TextView
+                android:id="@+id/tvDaySunday"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="S"
+                android:textSize="14sp"
+                android:textColor="@android:color/black"
+                android:layout_marginEnd="4dp"/>
+
+            <TextView
+                android:id="@+id/tvDayMonday"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="M"
+                android:textSize="14sp"
+                android:textColor="@android:color/black"
+                android:layout_marginEnd="4dp"/>
+
+            <TextView
+                android:id="@+id/tvDayTuesday"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="T"
+                android:textSize="14sp"
+                android:textColor="@android:color/black"
+                android:layout_marginEnd="4dp"/>
+
+            <TextView
+                android:id="@+id/tvDayWednesday"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="W"
+                android:textSize="14sp"
+                android:textColor="@android:color/black"
+                android:layout_marginEnd="4dp"/>
+
+            <TextView
+                android:id="@+id/tvDayThursday"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="T"
+                android:textSize="14sp"
+                android:textColor="@android:color/black"
+                android:layout_marginEnd="4dp"/>
+
+            <TextView
+                android:id="@+id/tvDayFriday"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="F"
+                android:textSize="14sp"
+                android:textColor="@android:color/black"
+                android:layout_marginEnd="4dp"/>
+
+            <TextView
+                android:id="@+id/tvDaySaturday"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="S"
+                android:textSize="14sp"
+                android:textColor="@android:color/black"/>
+        </LinearLayout>
+
+        <!-- Time -->
+        <TextView
+            android:id="@+id/tvMedicationTime"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textSize="14sp"
+            android:textColor="@android:color/black"
+            android:layout_marginEnd="16dp"/>
+
+        <!-- Checkbox -->
+        <CheckBox
+            android:id="@+id/cbMedicationTaken"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Taken"
+            android:textSize="14sp"/>
+    </LinearLayout>
+
+    <!-- Expanded content (only shows when expanded) -->
+    <LinearLayout
+        android:id="@+id/llExpandedContent"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginEnd="8dp" />
+        android:orientation="vertical"
+        android:visibility="gone"
+        android:paddingTop="8dp">
 
-    <TextView
-        android:id="@+id/tvDayMonday"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginEnd="8dp" />
-
-    <TextView
-        android:id="@+id/tvDayTuesday"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginEnd="8dp" />
-
-    <TextView
-        android:id="@+id/tvDayWednesday"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginEnd="8dp" />
-
-    <TextView
-        android:id="@+id/tvDayThursday"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginEnd="8dp" />
-
-    <TextView
-        android:id="@+id/tvDayFriday"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginEnd="8dp" />
-
-    <TextView
-        android:id="@+id/tvDaySaturday"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginEnd="8dp" />
-
-    <TextView
-        android:id="@+id/tvMedicationTime"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginEnd="8dp" />
-
-    <CheckBox
-        android:id="@+id/cbMedicationTaken"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content" />
+        <!-- Edit Button -->
+        <Button
+            android:id="@+id/btnEditMedication"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Edit Medication"
+            android:textSize="14sp"
+            android:layout_gravity="end"/>
+    </LinearLayout>
 </LinearLayout>

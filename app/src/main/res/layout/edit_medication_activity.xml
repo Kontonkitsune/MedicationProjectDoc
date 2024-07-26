@@ -9,12 +9,14 @@
         android:layout_height="wrap_content"
         android:orientation="vertical">
 
+        <!-- Medication Name -->
         <TextView
-            android:id="@+id/tvMedicationName"
+            android:id="@+id/tvMedicationNameLabel"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="Medication Name"
             android:textSize="18sp"
+            android:textStyle="bold"
             android:layout_marginBottom="8dp" />
 
         <EditText
@@ -24,27 +26,30 @@
             android:hint="Enter medication name"
             android:layout_marginBottom="16dp" />
 
+        <!-- Medication Time -->
         <TextView
-            android:id="@+id/tvMedicationTime"
+            android:id="@+id/tvMedicationTimeLabel"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="Medication Time"
             android:textSize="18sp"
+            android:textStyle="bold"
             android:layout_marginBottom="8dp" />
 
         <TimePicker
             android:id="@+id/timePickerMedication"
-            android:layout_width="wrap_content"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:timePickerMode="spinner"
             android:layout_marginBottom="16dp" />
 
-        <!-- Checkboxes for days of the week -->
+        <!-- Days of the Week -->
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="Select Days"
             android:textSize="18sp"
+            android:textStyle="bold"
             android:layout_marginBottom="8dp" />
 
         <LinearLayout
@@ -120,12 +125,14 @@
                 android:text="Saturday" />
         </LinearLayout>
 
+        <!-- Warning Label Directions -->
         <TextView
-            android:id="@+id/tvWarningLabelDirections"
+            android:id="@+id/tvWarningLabelDirectionsLabel"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="Warning Label Directions"
             android:textSize="18sp"
+            android:textStyle="bold"
             android:layout_marginBottom="8dp" />
 
         <EditText
@@ -135,12 +142,14 @@
             android:hint="Enter warning label directions"
             android:layout_marginBottom="16dp" />
 
+        <!-- Emergency Contact Number -->
         <TextView
-            android:id="@+id/tvEmergencyContactNumber"
+            android:id="@+id/tvEmergencyContactNumberLabel"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="Emergency Contact Number"
             android:textSize="18sp"
+            android:textStyle="bold"
             android:layout_marginBottom="8dp" />
 
         <EditText
@@ -151,12 +160,14 @@
             android:inputType="phone"
             android:layout_marginBottom="16dp" />
 
+        <!-- Dosage Count Per Day -->
         <TextView
-            android:id="@+id/tvDosageCountPerDay"
+            android:id="@+id/tvDosageCountPerDayLabel"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="Dosage Count Per Day"
             android:textSize="18sp"
+            android:textStyle="bold"
             android:layout_marginBottom="8dp" />
 
         <EditText
@@ -167,12 +178,14 @@
             android:inputType="number"
             android:layout_marginBottom="16dp" />
 
+        <!-- Dosage Per New Bottle -->
         <TextView
-            android:id="@+id/tvDosagePerNewBottle"
+            android:id="@+id/tvDosagePerNewBottleLabel"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="Dosage Per New Bottle"
             android:textSize="18sp"
+            android:textStyle="bold"
             android:layout_marginBottom="8dp" />
 
         <EditText
@@ -183,6 +196,7 @@
             android:inputType="number"
             android:layout_marginBottom="16dp" />
 
+        <!-- Buttons -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -201,7 +215,14 @@
                 android:id="@+id/btnSaveMedication"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Save Medication" />
+                android:text="Save"
+                android:layout_marginEnd="8dp" />
+
+            <Button
+                android:id="@+id/btnDeleteMedication"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Delete Medication" />
         </LinearLayout>
     </LinearLayout>
 </ScrollView>

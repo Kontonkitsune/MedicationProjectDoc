@@ -13,4 +13,16 @@ class MedicationViewModel(private val repository: MedicationRepository) : ViewMo
             repository.insertMedication(medication)
         }
     }
+
+    fun updateMedication(medication: Medication) {
+        viewModelScope.launch {
+            repository.updateMedication(medication)
+        }
+    }
+
+    fun deleteMedication(medicationId: Int) {
+        viewModelScope.launch {
+            repository.deleteMedication(medicationId)
+        }
+    }
 }

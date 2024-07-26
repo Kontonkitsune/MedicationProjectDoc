@@ -17,30 +17,35 @@
         android:theme="@style/Theme.ReminderDATA_FLAIR"
         tools:targetApi="31">
 
-    <activity
-        android:name="com.example.reminder_data_flair.MainActivity2"
-        android:exported="false" />
+        <activity
+            android:name=".MainActivity2"
+            android:exported="false" />
 
-    <receiver
-        android:name="com.example.reminder_data_flair.Notification"
-        android:enabled="true" />
+        <receiver
+            android:name="com.example.reminder_data_flair.Notification"
+            android:enabled="true" />
 
-    <activity
-        android:name="com.example.reminder_data_flair.MainActivity"
-        android:exported="true" />
+        <activity
+            android:name=".MainActivity"
+            android:exported="true" />
 
-    <activity
-        android:name="com.example.reminder_data_flair.DashboardActivity"
-        android:exported="true">
-        <intent-filter>
-            <action android:name="android.intent.action.MAIN" />
-            <category android:name="android.intent.category.LAUNCHER" />
-        </intent-filter>
-    </activity>
+        <activity
+            android:name=".DashboardActivity"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
 
-    <activity
-        android:name="com.example.reminder_data_flair.AddMedicationActivity"
-        android:exported="true" />
+        <activity
+            android:name=".AddMedicationActivity"
+            android:exported="true" />
 
-</application>
-    </manifest>
+        <activity
+            android:name=".EditMedicationActivity"
+            android:exported="true" />
+
+    </application>
+
+</manifest>

@@ -9,7 +9,6 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.*
 import androidx.recyclerview.widget.RecyclerView
-import com.example.reminder_data_flair.R
 import java.text.SimpleDateFormat
 import java.util.Locale
 

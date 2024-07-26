@@ -1,4 +1,3 @@
-// DividerItemDecoration.kt
 package com.example.reminder_data_flair
 
 import android.content.Context

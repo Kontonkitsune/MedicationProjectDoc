@@ -10,6 +10,8 @@ import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import java.text.SimpleDateFormat
+import java.util.Locale
 
 class DashboardActivity : AppCompatActivity() {
 
@@ -40,7 +42,15 @@ class DashboardActivity : AppCompatActivity() {
         medicationViewModel.allMedications.observe(this, Observer { medications ->
             medications?.let {
                 Log.d("DashboardActivity", "Medications fetched: $it")
-                medicationAdapter.updateList(it)
+
+                // Sort medications by time
+                val timeFormat = SimpleDateFormat("HH:mm", Locale.getDefault())
+                val sortedMedications = it.sortedBy { medication ->
+                    timeFormat.parse(medication.time)
+                }
+
+                // Update adapter with sorted list
+                medicationAdapter.updateList(sortedMedications)
             }
         })
 

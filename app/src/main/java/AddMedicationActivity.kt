@@ -1,6 +1,5 @@
 package com.example.reminder_data_flair
 
-import android.content.DialogInterface
 import android.os.Bundle
 import android.widget.*
 import androidx.appcompat.app.AlertDialog

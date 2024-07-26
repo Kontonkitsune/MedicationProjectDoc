@@ -222,7 +222,7 @@
                 android:id="@+id/btnDeleteMedication"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Delete Medication" />
+                android:text="Remove" />
         </LinearLayout>
     </LinearLayout>
 </ScrollView>

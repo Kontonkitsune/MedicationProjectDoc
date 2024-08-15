@@ -3,7 +3,12 @@
     xmlns:tools="http://schemas.android.com/tools"
     package="com.example.reminder_data_flair">
 
+    <!-- Existing Permissions -->
     <uses-permission android:name="android.permission.SCHEDULE_EXACT_ALARM" />
+    <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
+
+    <!-- Add POST_NOTIFICATIONS permission for Android 13+ -->
+    <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
 
     <application
         android:name=".MyApp"
@@ -21,9 +26,11 @@
             android:name=".MainActivity2"
             android:exported="false" />
 
+        <!-- Define your BroadcastReceiver for handling alarms -->
         <receiver
-            android:name="com.example.reminder_data_flair.Notification"
-            android:enabled="true" />
+            android:name=".MedicationAlarmReceiver"
+            android:enabled="true"
+            android:exported="true" />
 
         <activity
             android:name=".MainActivity"

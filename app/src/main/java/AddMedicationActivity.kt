@@ -1,11 +1,20 @@
 package com.example.reminder_data_flair
 
+import android.app.AlarmManager
+import android.app.Notification
+import android.app.NotificationManager
+import android.app.PendingIntent
+import android.content.Context
+import android.content.Intent
+import android.os.Build
 import android.os.Bundle
+import android.util.Log
 import android.widget.*
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.lifecycleScope
 import kotlinx.coroutines.launch
+import java.util.Calendar
 
 class AddMedicationActivity : AppCompatActivity() {
 
@@ -84,21 +93,65 @@ class AddMedicationActivity : AppCompatActivity() {
 
         lifecycleScope.launch {
             MyApp.database.medicationDao().insertMedication(medication)
+            setMedicationAlarm(medication)
+            sendNotification(medication)
             finish()
         }
     }
 
+    private fun setMedicationAlarm(medication: Medication) {
+        val alarmManager = getSystemService(ALARM_SERVICE) as AlarmManager
+        val notificationIntent = Intent(this, MedicationAlarmReceiver::class.java).apply {
+            putExtra("medication_name", medication.name)
+        }
+
+        val pendingIntentFlags = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
+        } else {
+            PendingIntent.FLAG_UPDATE_CURRENT
+        }
+
+        val pendingIntent = PendingIntent.getBroadcast(this, 0, notificationIntent, pendingIntentFlags)
+
+        val timeParts = medication.time.split(":")
+        val hour = timeParts[0].toInt()
+        val minute = timeParts[1].toInt()
+
+        val calendar = Calendar.getInstance().apply {
+            set(Calendar.HOUR_OF_DAY, hour)
+            set(Calendar.MINUTE, minute)
+            set(Calendar.SECOND, 0)
+        }
+
+        // Log the alarm time and other details
+        Log.d("AddMedicationActivity", "Alarm set for: ${calendar.time}")
+
+        alarmManager.setExact(AlarmManager.RTC_WAKEUP, calendar.timeInMillis, pendingIntent)
+    }
+
+    private fun sendNotification(medication: Medication) {
+        val notificationManager = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+        val notificationBuilder = Notification.Builder(this)
+            .setContentTitle("Medication Reminder")
+            .setContentText("Time to take your medication: ${medication.name}")
+            .setSmallIcon(R.drawable.app_icon)
+            .setAutoCancel(true)
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            notificationBuilder.setChannelId("MedicationReminderChannel")
+        }
+
+        notificationManager.notify(0, notificationBuilder.build())
+    }
+
     private fun showBackConfirmationDialog() {
-        AlertDialog.Builder(this)
-            .setMessage("Are you sure you want to go back? Unsaved changes will be lost.")
-            .setPositiveButton("Yes") { dialog, _ ->
-                dialog.dismiss()
-                finish()
-            }
-            .setNegativeButton("No") { dialog, _ ->
-                dialog.dismiss()
-            }
-            .create()
-            .show()
+        val builder = AlertDialog.Builder(this)
+        builder.setTitle("Confirm")
+        builder.setMessage("Are you sure you want to go back? Any unsaved progress will be lost.")
+        builder.setPositiveButton("Yes") { _, _ ->
+            finish()
+        }
+        builder.setNegativeButton("No", null)
+        builder.show()
     }
 }

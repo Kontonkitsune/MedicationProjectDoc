@@ -4,4 +4,7 @@
     <string name="hello_blank_fragment">Hello blank fragment</string>
 
     <string name="arrow_expand_collapse">Expand/Collapse</string>
+
+    <string name="notification_channel_name">Medication Reminder</string>
+    <string name="notification_channel_description">Channel for medication reminders</string>
 </resources>

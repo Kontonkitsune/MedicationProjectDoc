@@ -1,51 +1,58 @@
 package com.example.reminder_data_flair
 
 import android.content.Context
+import android.content.Intent
 import android.graphics.Color
 import android.graphics.Typeface
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.ArrayAdapter
-import android.widget.CheckBox
-import android.widget.TextView
+import android.widget.*
+import androidx.recyclerview.widget.RecyclerView
+import java.text.SimpleDateFormat
+import java.util.Locale
 
-class MedicationAdapter(context: Context, private var medications: MutableList<Medication>) :
-    ArrayAdapter<Medication>(context, 0, medications) {
+class MedicationAdapter(private val context: Context, private var medications: MutableList<Medication>) :
+    RecyclerView.Adapter<MedicationAdapter.MedicationViewHolder>() {
 
-    override fun getView(position: Int, convertView: View?, parent: ViewGroup): View {
-        val medication = getItem(position)!!
-        val view = convertView ?: LayoutInflater.from(context).inflate(R.layout.item_medication, parent, false)
+    private val expandedPositions = mutableSetOf<Int>()
 
-        val nameTextView: TextView = view.findViewById(R.id.tvMedicationName)
-        val timeTextView: TextView = view.findViewById(R.id.tvMedicationTime)
-        val takenCheckBox: CheckBox = view.findViewById(R.id.cbMedicationTaken)
+    inner class MedicationViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
+        val ivArrow: ImageView = itemView.findViewById(R.id.ivArrow)
+        val llHeader: LinearLayout = itemView.findViewById(R.id.llHeader)
+        val llExpandedContent: LinearLayout = itemView.findViewById(R.id.llExpandedContent)
+        val nameTextView: TextView = itemView.findViewById(R.id.tvMedicationName)
+        val timeTextView: TextView = itemView.findViewById(R.id.tvMedicationTime)
+        val takenCheckBox: CheckBox = itemView.findViewById(R.id.cbMedicationTaken)
+        val editButton: Button = itemView.findViewById(R.id.btnEditMedication)
+        val daySunday: TextView = itemView.findViewById(R.id.tvDaySunday)
+        val dayMonday: TextView = itemView.findViewById(R.id.tvDayMonday)
+        val dayTuesday: TextView = itemView.findViewById(R.id.tvDayTuesday)
+        val dayWednesday: TextView = itemView.findViewById(R.id.tvDayWednesday)
+        val dayThursday: TextView = itemView.findViewById(R.id.tvDayThursday)
+        val dayFriday: TextView = itemView.findViewById(R.id.tvDayFriday)
+        val daySaturday: TextView = itemView.findViewById(R.id.tvDaySaturday)
+    }
 
-        nameTextView.text = medication.name
-        timeTextView.text = medication.time
-        takenCheckBox.isChecked = medication.taken
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): MedicationViewHolder {
+        val view = LayoutInflater.from(context).inflate(R.layout.item_medication, parent, false)
+        return MedicationViewHolder(view)
+    }
 
-        // Default days display
-        val defaultDays = "S M T W T F S"
-        val days = medication.days
-
-        // Day TextViews
-        val daySunday: TextView = view.findViewById(R.id.tvDaySunday)
-        val dayMonday: TextView = view.findViewById(R.id.tvDayMonday)
-        val dayTuesday: TextView = view.findViewById(R.id.tvDayTuesday)
-        val dayWednesday: TextView = view.findViewById(R.id.tvDayWednesday)
-        val dayThursday: TextView = view.findViewById(R.id.tvDayThursday)
-        val dayFriday: TextView = view.findViewById(R.id.tvDayFriday)
-        val daySaturday: TextView = view.findViewById(R.id.tvDaySaturday)
+    override fun onBindViewHolder(holder: MedicationViewHolder, position: Int) {
+        val medication = medications[position]
+        holder.nameTextView.text = medication.name
+        holder.timeTextView.text = formatTime(medication.time)
+        holder.takenCheckBox.isChecked = medication.taken
 
         // Set default days
-        daySunday.text = "S"
-        dayMonday.text = "M"
-        dayTuesday.text = "T"
-        dayWednesday.text = "W"
-        dayThursday.text = "T"
-        dayFriday.text = "F"
-        daySaturday.text = "S"
+        holder.daySunday.text = "S"
+        holder.dayMonday.text = "M"
+        holder.dayTuesday.text = "T"
+        holder.dayWednesday.text = "W"
+        holder.dayThursday.text = "T"
+        holder.dayFriday.text = "F"
+        holder.daySaturday.text = "S"
 
         // Bold and color days based on medication.days
         fun setDayStyle(dayTextView: TextView, isBold: Boolean) {
@@ -58,25 +65,61 @@ class MedicationAdapter(context: Context, private var medications: MutableList<M
             }
         }
 
-        setDayStyle(daySunday, days.contains('S'))
-        setDayStyle(dayMonday, days.contains('M'))
-        setDayStyle(dayTuesday, days.contains('T'))
-        setDayStyle(dayWednesday, days.contains('W'))
-        setDayStyle(dayThursday, days.contains('R'))
-        setDayStyle(dayFriday, days.contains('F'))
-        setDayStyle(daySaturday, days.contains('A'))
+        setDayStyle(holder.daySunday, medication.days.contains('S'))
+        setDayStyle(holder.dayMonday, medication.days.contains('M'))
+        setDayStyle(holder.dayTuesday, medication.days.contains('T'))
+        setDayStyle(holder.dayWednesday, medication.days.contains('W'))
+        setDayStyle(holder.dayThursday, medication.days.contains('R'))
+        setDayStyle(holder.dayFriday, medication.days.contains('F'))
+        setDayStyle(holder.daySaturday, medication.days.contains('A'))
 
-        takenCheckBox.setOnCheckedChangeListener { _, isChecked ->
+        // Handle expand/collapse logic
+        val isExpanded = expandedPositions.contains(position)
+        holder.llExpandedContent.visibility = if (isExpanded) View.VISIBLE else View.GONE
+        holder.ivArrow.setImageResource(
+            if (isExpanded) R.drawable.ic_arrow_down else R.drawable.ic_arrow_right
+        )
+
+        holder.llHeader.setOnClickListener {
+            if (isExpanded) {
+                expandedPositions.remove(position)
+            } else {
+                expandedPositions.add(position)
+            }
+            notifyItemChanged(position)
+        }
+
+        holder.takenCheckBox.setOnCheckedChangeListener { _, isChecked ->
             medication.taken = isChecked
             // Update database if needed
         }
 
-        return view
+        holder.editButton.setOnClickListener {
+            val intent = Intent(context, EditMedicationActivity::class.java).apply {
+                putExtra("medicationId", medication.id)
+            }
+            context.startActivity(intent)
+        }
+    }
+
+    override fun getItemCount(): Int {
+        return medications.size
     }
 
     fun updateList(newMedications: List<Medication>) {
         medications.clear()
         medications.addAll(newMedications)
         notifyDataSetChanged() // Ensure this is called
+    }
+
+    private fun formatTime(time: String): String {
+        return try {
+            val inputFormat = SimpleDateFormat("HH:mm", Locale.getDefault())
+            val outputFormat = SimpleDateFormat("h:mm a", Locale.getDefault())
+            val date = inputFormat.parse(time)
+            outputFormat.format(date!!)
+        } catch (e: Exception) {
+            time // Return as is if there's an error
+        }
     }
 }

@@ -1,4 +1,3 @@
-// MedicationRepository.kt
 package com.example.reminder_data_flair
 
 import androidx.lifecycle.LiveData
@@ -12,5 +11,9 @@ class MedicationRepository(private val medicationDao: MedicationDao) {
 
     suspend fun updateMedication(medication: Medication) {
         medicationDao.updateMedication(medication)
+    }
+
+    suspend fun deleteMedication(medicationId: Int) {
+        medicationDao.deleteMedication(medicationId)
     }
 }

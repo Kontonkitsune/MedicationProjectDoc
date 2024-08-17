@@ -4,10 +4,11 @@ import android.os.Bundle
 import android.widget.*
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
+import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import kotlinx.coroutines.launch
 
-class AddMedicationActivity : AppCompatActivity() {
+class EditMedicationActivity : AppCompatActivity() {
 
     private lateinit var etMedicationName: EditText
     private lateinit var timePickerMedication: TimePicker
@@ -23,11 +24,15 @@ class AddMedicationActivity : AppCompatActivity() {
     private lateinit var cbFriday: CheckBox
     private lateinit var cbSaturday: CheckBox
     private lateinit var btnSaveMedication: Button
+    private lateinit var btnDeleteMedication: Button
     private lateinit var btnBack: Button
+
+    private var medicationId: Int = 0
+    private lateinit var medicationViewModel: MedicationViewModel
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.add_medication_temp)
+        setContentView(R.layout.edit_medication_activity)
 
         etMedicationName = findViewById(R.id.etMedicationName)
         timePickerMedication = findViewById(R.id.timePickerMedication)
@@ -43,14 +48,47 @@ class AddMedicationActivity : AppCompatActivity() {
         cbFriday = findViewById(R.id.cbFriday)
         cbSaturday = findViewById(R.id.cbSaturday)
         btnSaveMedication = findViewById(R.id.btnSaveMedication)
+        btnDeleteMedication = findViewById(R.id.btnDeleteMedication)
         btnBack = findViewById(R.id.btnBack)
+
+        medicationId = intent.getIntExtra("medicationId", 0)
+        val medicationDao = MyApp.database.medicationDao()
+        val repository = MedicationRepository(medicationDao)
+        medicationViewModel = ViewModelProvider(this, MedicationViewModelFactory(repository)).get(MedicationViewModel::class.java)
+
+        medicationViewModel.allMedications.observe(this) { medications ->
+            val medication = medications.find { it.id == medicationId }
+            medication?.let {
+                etMedicationName.setText(it.name)
+                val time = it.time.split(":")
+                timePickerMedication.hour = time[0].toInt()
+                timePickerMedication.minute = time[1].toInt()
+                etWarningLabelDirections.setText(it.warningLabelDirections)
+                etEmergencyContactNumber.setText(it.emergencyContactNumber)
+                etDosageCountPerDay.setText(it.dosageCountPerDay.toString())
+                etDosagePerNewBottle.setText(it.dosagePerNewBottle.toString())
+
+                // Set checkbox states based on stored days
+                cbSunday.isChecked = it.days.contains("S")
+                cbMonday.isChecked = it.days.contains("M")
+                cbTuesday.isChecked = it.days.contains("T")
+                cbWednesday.isChecked = it.days.contains("W")
+                cbThursday.isChecked = it.days.contains("R")
+                cbFriday.isChecked = it.days.contains("F")
+                cbSaturday.isChecked = it.days.contains("A")
+            }
+        }
 
         btnSaveMedication.setOnClickListener {
             saveMedication()
         }
 
+        btnDeleteMedication.setOnClickListener {
+            showDeleteConfirmationDialog()
+        }
+
         btnBack.setOnClickListener {
-            showBackConfirmationDialog()
+            showExitConfirmationDialog()
         }
     }
 
@@ -72,6 +110,7 @@ class AddMedicationActivity : AppCompatActivity() {
         if (cbSaturday.isChecked) days.append("A ")
 
         val medication = Medication(
+            id = medicationId,
             name = medicationName,
             days = days.toString().trim(),
             time = medicationTime,
@@ -79,26 +118,41 @@ class AddMedicationActivity : AppCompatActivity() {
             emergencyContactNumber = etEmergencyContactNumber.text.toString(),
             dosageCountPerDay = etDosageCountPerDay.text.toString().toIntOrNull() ?: 0,
             dosagePerNewBottle = etDosagePerNewBottle.text.toString().toIntOrNull() ?: 0,
-            taken = false
+            taken = false // or the current state if it needs to be preserved
         )
 
         lifecycleScope.launch {
-            MyApp.database.medicationDao().insertMedication(medication)
-            finish()
+            medicationViewModel.updateMedication(medication)
+            finish() // Go back to the previous screen
         }
     }
 
-    private fun showBackConfirmationDialog() {
+    private fun showDeleteConfirmationDialog() {
         AlertDialog.Builder(this)
-            .setMessage("Are you sure you want to go back? Unsaved changes will be lost.")
-            .setPositiveButton("Yes") { dialog, _ ->
-                dialog.dismiss()
-                finish()
+            .setTitle("Confirm Deletion")
+            .setMessage("Are you sure you want to delete this medication? This action cannot be undone.")
+            .setPositiveButton("Delete") { _, _ ->
+                deleteMedication()
             }
-            .setNegativeButton("No") { dialog, _ ->
-                dialog.dismiss()
+            .setNegativeButton("Cancel", null) // Do nothing
+            .show()
+    }
+
+    private fun deleteMedication() {
+        lifecycleScope.launch {
+            medicationViewModel.deleteMedication(medicationId)
+            finish() // Go back to the previous screen
+        }
+    }
+
+    private fun showExitConfirmationDialog() {
+        AlertDialog.Builder(this)
+            .setTitle("Confirm Exit")
+            .setMessage("Are you sure you want to go back? Any unsaved progress will be lost.")
+            .setPositiveButton("Yes") { _, _ ->
+                finish() // Go back to the previous screen
             }
-            .create()
+            .setNegativeButton("Cancel", null) // Do nothing
             .show()
     }
 }

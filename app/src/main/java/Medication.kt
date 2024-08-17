@@ -9,5 +9,9 @@ data class Medication(
     val name: String,
     val days: String,
     val time: String,
-    var taken: Boolean
+    val warningLabelDirections: String = "", // New field with default value
+    val emergencyContactNumber: String = "", // New field with default value
+    val dosageCountPerDay: Int = 0,         // New field with default value
+    val dosagePerNewBottle: Int = 0,        // New field with default value
+    var taken: Boolean = false              // Default value for taken
 )

@@ -13,6 +13,10 @@ class MedicationRepository(private val medicationDao: MedicationDao) {
         medicationDao.updateMedication(medication)
     }
 
+    suspend fun updateMedications(medications: List<Medication>) {
+        medicationDao.updateMedications(medications)
+    }
+
     suspend fun deleteMedication(medicationId: Int) {
         medicationDao.deleteMedication(medicationId)
     }

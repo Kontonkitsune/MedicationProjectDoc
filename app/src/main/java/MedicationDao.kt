@@ -16,10 +16,12 @@ interface MedicationDao {
     @Query("SELECT * FROM medications")
     fun getAllMedications(): LiveData<List<Medication>>
 
-    @Insert(onConflict = OnConflictStrategy.REPLACE) // For insert with conflict strategy
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertMedication(medication: Medication)
 
     @Update
     suspend fun updateMedication(medication: Medication)
-}
 
+    @Update
+    suspend fun updateMedications(medications: List<Medication>)
+}

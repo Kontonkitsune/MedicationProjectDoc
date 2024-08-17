@@ -6,6 +6,7 @@ import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.launch
 
 class MedicationViewModel(private val repository: MedicationRepository) : ViewModel() {
+
     val allMedications: LiveData<List<Medication>> = repository.allMedications
 
     fun insert(medication: Medication) {
@@ -17,6 +18,12 @@ class MedicationViewModel(private val repository: MedicationRepository) : ViewMo
     fun updateMedication(medication: Medication) {
         viewModelScope.launch {
             repository.updateMedication(medication)
+        }
+    }
+
+    fun updateMedications(medications: List<Medication>) {
+        viewModelScope.launch {
+            repository.updateMedications(medications)
         }
     }
 

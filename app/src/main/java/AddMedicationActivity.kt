@@ -64,7 +64,7 @@ class AddMedicationActivity : AppCompatActivity() {
     }
 
     private fun saveMedication() {
-        val medicationName = etMedicationName.text.toString()
+        val medicationName = etMedicationName.text.toString().trim()
         val medicationTime = String.format(
             "%02d:%02d",
             timePickerMedication.hour,
@@ -80,22 +80,46 @@ class AddMedicationActivity : AppCompatActivity() {
         if (cbFriday.isChecked) days.append("F ")
         if (cbSaturday.isChecked) days.append("A ")
 
+        val dosageCountPerDay = etDosageCountPerDay.text.toString().toIntOrNull() ?: 0
+        val dosagePerNewBottle = etDosagePerNewBottle.text.toString().toIntOrNull() ?: 0
+
+        if (medicationName.isEmpty()) {
+            Toast.makeText(this, "Medication name cannot be empty", Toast.LENGTH_SHORT).show()
+            return
+        }
+
+        if (dosageCountPerDay <= 0 || dosagePerNewBottle <= 0) {
+            Toast.makeText(this, "Dosage counts must be positive numbers", Toast.LENGTH_SHORT).show()
+            return
+        }
+
         val medication = Medication(
             name = medicationName,
             days = days.toString().trim(),
             time = medicationTime,
-            warningLabelDirections = etWarningLabelDirections.text.toString(),
-            emergencyContactNumber = etEmergencyContactNumber.text.toString(),
-            dosageCountPerDay = etDosageCountPerDay.text.toString().toIntOrNull() ?: 0,
-            dosagePerNewBottle = etDosagePerNewBottle.text.toString().toIntOrNull() ?: 0,
-            taken = false
+            warningLabelDirections = etWarningLabelDirections.text.toString().trim(),
+            emergencyContactNumber = etEmergencyContactNumber.text.toString().trim(),
+            dosageCountPerDay = dosageCountPerDay,
+            dosagePerNewBottle = dosagePerNewBottle,
+            taken = false,
+            currentDosageCount = dosagePerNewBottle // Initialize with dosage per new bottle
         )
 
+        // Log medication details before saving
+        Log.d("AddMedicationActivity", "Saving new medication: $medication")
+
         lifecycleScope.launch {
-            MyApp.database.medicationDao().insertMedication(medication)
-            setMedicationAlarm(medication)
-            sendNotification(medication)
-            finish()
+            try {
+                MyApp.database.medicationDao().insertMedication(medication)
+                Log.d("AddMedicationActivity", "Medication saved with ID: ${medication.id}")
+
+                setMedicationAlarm(medication)
+                sendNotification(medication)
+                finish()
+            } catch (e: Exception) {
+                Log.e("AddMedicationActivity", "Error saving medication: ${e.message}")
+                Toast.makeText(this@AddMedicationActivity, "Failed to save medication", Toast.LENGTH_SHORT).show()
+            }
         }
     }
 
@@ -123,10 +147,43 @@ class AddMedicationActivity : AppCompatActivity() {
             set(Calendar.SECOND, 0)
         }
 
-        // Log the alarm time and other details
+        // Adjust the calendar to the next valid day
+        calendar.set(Calendar.DAY_OF_WEEK, findNextValidDay(medication.days, calendar))
+
+        // Check if the scheduled time is in the past for today; if so, move to the next valid week
+        if (calendar.before(Calendar.getInstance())) {
+            calendar.add(Calendar.WEEK_OF_YEAR, 1)
+        }
+
+        // Log the adjusted alarm time and other details
         Log.d("AddMedicationActivity", "Alarm set for: ${calendar.time}")
 
         alarmManager.setExact(AlarmManager.RTC_WAKEUP, calendar.timeInMillis, pendingIntent)
+    }
+
+    private fun findNextValidDay(days: String, calendar: Calendar): Int {
+        val daysMap = mapOf(
+            'S' to Calendar.SUNDAY,
+            'M' to Calendar.MONDAY,
+            'T' to Calendar.TUESDAY,
+            'W' to Calendar.WEDNESDAY,
+            'R' to Calendar.THURSDAY,
+            'F' to Calendar.FRIDAY,
+            'A' to Calendar.SATURDAY
+        )
+
+        val currentDay = calendar.get(Calendar.DAY_OF_WEEK)
+        val sortedDays = days.trim().split(" ").mapNotNull { daysMap[it[0]] }.sorted()
+
+        // Find the next valid day or loop back to the first valid day
+        for (day in sortedDays) {
+            if (day >= currentDay) {
+                return day
+            }
+        }
+
+        // If no valid day is found, return the first valid day in the next week
+        return sortedDays.firstOrNull() ?: currentDay
     }
 
     private fun sendNotification(medication: Medication) {

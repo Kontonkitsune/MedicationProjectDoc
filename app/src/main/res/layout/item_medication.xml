@@ -129,6 +129,15 @@
         android:visibility="gone"
         android:paddingTop="8dp">
 
+        <!-- Dosage Count Tracker -->
+        <TextView
+            android:id="@+id/tvDosageCount"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Dosage Count: 0"
+            android:textSize="14sp"
+            android:textColor="@android:color/black"/>
+
         <!-- Edit Button -->
         <Button
             android:id="@+id/btnEditMedication"

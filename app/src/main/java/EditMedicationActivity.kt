@@ -118,7 +118,8 @@ class EditMedicationActivity : AppCompatActivity() {
             emergencyContactNumber = etEmergencyContactNumber.text.toString(),
             dosageCountPerDay = etDosageCountPerDay.text.toString().toIntOrNull() ?: 0,
             dosagePerNewBottle = etDosagePerNewBottle.text.toString().toIntOrNull() ?: 0,
-            taken = false // or the current state if it needs to be preserved
+            taken = false, // or the current state if it needs to be preserved
+            currentDosageCount = etDosagePerNewBottle.text.toString().toIntOrNull() ?: 0
         )
 
         lifecycleScope.launch {

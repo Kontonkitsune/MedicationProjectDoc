@@ -1,62 +1,190 @@
-// DashboardActivity.kt
 package com.example.reminder_data_flair
 
+import android.Manifest
+import android.app.AlarmManager
 import android.content.Intent
+import android.content.pm.PackageManager
+import android.os.Build
 import android.os.Bundle
+import android.provider.Settings
 import android.util.Log
 import android.widget.Button
 import androidx.appcompat.app.AppCompatActivity
-import androidx.lifecycle.Observer
+import androidx.core.app.ActivityCompat
+import androidx.core.content.ContextCompat
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import java.text.SimpleDateFormat
-import java.util.Locale
+import java.util.*
 
 class DashboardActivity : AppCompatActivity() {
 
     private lateinit var medicationRecyclerView: RecyclerView
     private lateinit var addMedicationButton: Button
+    private lateinit var viewHistoryButton: Button
     private lateinit var medicationAdapter: MedicationAdapter
     private lateinit var medicationViewModel: MedicationViewModel
+
+    companion object {
+        private const val REQUEST_NOTIFICATION_PERMISSION = 1
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_dashboard)
 
+        // Check and request notification and alarm permissions
+        checkNotificationAndAlarmPermissions()
+
         medicationRecyclerView = findViewById(R.id.rvMedicationSchedule)
         addMedicationButton = findViewById(R.id.btnAddMedication)
+        viewHistoryButton = findViewById(R.id.btnViewHistory)
 
         // Set up RecyclerView
-        medicationAdapter = MedicationAdapter(this, mutableListOf())
+        val medicationDao = MyApp.database.medicationDao()
+        val repository = MedicationRepository(medicationDao)
+        medicationViewModel = ViewModelProvider(this, MedicationViewModelFactory(repository)).get(MedicationViewModel::class.java)
+
+        // Initialize the MedicationAdapter with the checkbox listener
+        medicationAdapter = MedicationAdapter(this, mutableListOf(), medicationViewModel) { medication ->
+            val currentTimestamp = System.currentTimeMillis()
+            Log.d("DashboardActivity", "Checkbox clicked for medication: ${medication.name} at $currentTimestamp")
+
+            // Update medication status and save timestamp
+            medicationViewModel.updateMedicationTakenStatus(medication.id, currentTimestamp)
+        }
+
         medicationRecyclerView.adapter = medicationAdapter
         medicationRecyclerView.layoutManager = LinearLayoutManager(this)
 
         // Add divider decoration
         medicationRecyclerView.addItemDecoration(DividerItemDecoration(this))
 
-        val medicationDao = MyApp.database.medicationDao()
-        val repository = MedicationRepository(medicationDao)
-        medicationViewModel = ViewModelProvider(this, MedicationViewModelFactory(repository)).get(MedicationViewModel::class.java)
-
-        medicationViewModel.allMedications.observe(this, Observer { medications ->
+        medicationViewModel.allMedications.observe(this) { medications ->
             medications?.let {
                 Log.d("DashboardActivity", "Medications fetched: $it")
 
-                // Sort medications by time
-                val timeFormat = SimpleDateFormat("HH:mm", Locale.getDefault())
-                val sortedMedications = it.sortedBy { medication ->
-                    timeFormat.parse(medication.time)
-                }
+                // Sort medications by relevance to the current date and time
+                val sortedMedications = sortMedicationsByRelevance(it)
 
                 // Update adapter with sorted list
                 medicationAdapter.updateList(sortedMedications)
+
+                // Enable the history button and set its click listener
+                if (sortedMedications.isNotEmpty()) {
+                    viewHistoryButton.isEnabled = true
+                    viewHistoryButton.setOnClickListener {
+                        val intent = Intent(this, MedicationHistoryActivity::class.java)
+                        intent.putExtra("medication_id", sortedMedications[0].id) // Pass the first medication's ID
+                        startActivity(intent)
+                    }
+                } else {
+                    viewHistoryButton.isEnabled = false
+                }
             }
-        })
+        }
 
         addMedicationButton.setOnClickListener {
             val intent = Intent(this, AddMedicationActivity::class.java)
             startActivity(intent)
         }
+    }
+
+    private fun checkNotificationAndAlarmPermissions() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            if (ContextCompat.checkSelfPermission(
+                    this, Manifest.permission.POST_NOTIFICATIONS
+                ) != PackageManager.PERMISSION_GRANTED
+            ) {
+                // Request the permission
+                ActivityCompat.requestPermissions(
+                    this,
+                    arrayOf(Manifest.permission.POST_NOTIFICATIONS),
+                    REQUEST_NOTIFICATION_PERMISSION
+                )
+            }
+        }
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S && !canScheduleExactAlarms()) {
+            // Request permission to schedule exact alarms
+            val intent = Intent(Settings.ACTION_REQUEST_SCHEDULE_EXACT_ALARM)
+            startActivity(intent)
+        }
+    }
+
+    private fun canScheduleExactAlarms(): Boolean {
+        return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+            val alarmManager = getSystemService(ALARM_SERVICE) as AlarmManager
+            try {
+                val method = AlarmManager::class.java.getMethod("canScheduleExactAlarms")
+                method.invoke(alarmManager) as Boolean
+            } catch (e: Exception) {
+                Log.e("DashboardActivity", "Reflection error: ${e.message}")
+                false
+            }
+        } else {
+            true
+        }
+    }
+
+    private fun sortMedicationsByRelevance(medications: List<Medication>): List<Medication> {
+        val currentTime = Calendar.getInstance()
+
+        return medications.sortedWith(compareBy<Medication> { medication ->
+            val nextScheduledTime = getNextScheduledTime(medication, currentTime)
+            nextScheduledTime?.timeInMillis ?: Long.MAX_VALUE
+        })
+    }
+
+    private fun getNextScheduledTime(medication: Medication, currentTime: Calendar): Calendar? {
+        val daysMap = mapOf(
+            'S' to Calendar.SUNDAY,
+            'M' to Calendar.MONDAY,
+            'T' to Calendar.TUESDAY,
+            'W' to Calendar.WEDNESDAY,
+            'R' to Calendar.THURSDAY,
+            'F' to Calendar.FRIDAY,
+            'A' to Calendar.SATURDAY
+        )
+
+        val sortedDays = medication.days.mapNotNull { daysMap[it] }.sorted()
+
+        for (day in sortedDays) {
+            val targetTime = Calendar.getInstance()
+            targetTime.set(Calendar.DAY_OF_WEEK, day)
+            val timeParts = medication.time.split(":")
+            val hour = timeParts[0].toInt()
+            val minute = timeParts[1].toInt()
+
+            targetTime.set(Calendar.HOUR_OF_DAY, hour)
+            targetTime.set(Calendar.MINUTE, minute)
+            targetTime.set(Calendar.SECOND, 0)
+            targetTime.set(Calendar.MILLISECOND, 0)
+
+            if (targetTime.after(currentTime) || targetTime.equals(currentTime)) {
+                return targetTime
+            }
+        }
+
+        for (day in sortedDays) {
+            val targetTime = Calendar.getInstance()
+            targetTime.set(Calendar.DAY_OF_WEEK, day)
+            val timeParts = medication.time.split(":")
+            val hour = timeParts[0].toInt()
+            val minute = timeParts[1].toInt()
+
+            targetTime.set(Calendar.HOUR_OF_DAY, hour)
+            targetTime.set(Calendar.MINUTE, minute)
+            targetTime.set(Calendar.SECOND, 0)
+            targetTime.set(Calendar.MILLISECOND, 0)
+
+            if (targetTime.before(currentTime)) {
+                targetTime.add(Calendar.WEEK_OF_YEAR, 1)
+            }
+
+            return targetTime
+        }
+
+        return null
     }
 }

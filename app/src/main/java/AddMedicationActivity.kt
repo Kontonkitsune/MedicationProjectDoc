@@ -191,7 +191,7 @@ class AddMedicationActivity : AppCompatActivity() {
         val notificationBuilder = Notification.Builder(this)
             .setContentTitle("Medication Reminder")
             .setContentText("Time to take your medication: ${medication.name}")
-            .setSmallIcon(R.drawable.app_icon)
+            .setSmallIcon(R.drawable.app_notif_icon)
             .setAutoCancel(true)
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {

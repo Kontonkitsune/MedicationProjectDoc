@@ -18,7 +18,8 @@ import java.util.*
 class MedicationAdapter(
     private val context: Context,
     private var medications: MutableList<Medication>,
-    private val medicationViewModel: MedicationViewModel
+    private val medicationViewModel: MedicationViewModel,
+    private val onCheckboxClicked: (Medication) -> Unit
 ) : RecyclerView.Adapter<MedicationAdapter.MedicationViewHolder>() {
 
     private val expandedPositions = mutableSetOf<Int>()
@@ -74,7 +75,7 @@ class MedicationAdapter(
                 dayTextView.setTextColor(Color.BLACK)
             } else {
                 dayTextView.setTypeface(null, Typeface.NORMAL)
-                dayTextView.setTextColor(Color.GRAY) // Or default color
+                dayTextView.setTextColor(Color.GRAY)
             }
         }
 
@@ -114,13 +115,7 @@ class MedicationAdapter(
 
             // Update medication details if checked
             if (isChecked) {
-                val currentDate = Calendar.getInstance().apply {
-                    set(Calendar.HOUR_OF_DAY, 0)
-                    set(Calendar.MINUTE, 0)
-                    set(Calendar.SECOND, 0)
-                    set(Calendar.MILLISECOND, 0)
-                }.timeInMillis
-
+                val currentDate = Calendar.getInstance().timeInMillis
                 medication.lastTakenDate = currentDate
 
                 // Decrement dosage count
@@ -128,6 +123,20 @@ class MedicationAdapter(
                 if (medication.currentDosageCount < 0) medication.currentDosageCount = 0
 
                 holder.dosageCountTextView.text = "Dosage Count: ${medication.currentDosageCount}"
+
+                // Save medication name and current timestamp
+                saveMedicationTimestamp(medication, currentDate)
+
+                // Add the current timestamp to the pastTimestamps list
+                medication.pastTimestamps = medication.pastTimestamps + currentDate
+
+                // Trigger the lambda function
+                onCheckboxClicked(medication)
+
+                // Delayed check to ensure the state is correct after a UI update
+                Handler(Looper.getMainLooper()).postDelayed({
+                    holder.takenCheckBox.isChecked = medication.taken
+                }, 200)
             }
 
             medicationViewModel.updateMedication(medication)
@@ -180,6 +189,8 @@ class MedicationAdapter(
 
             val delay = calendar.timeInMillis - System.currentTimeMillis()
 
+            Log.d("MedicationAdapter", "Scheduling uncheck for medication ID: ${medication.id} at ${calendar.time}")
+
             val handler = Handler(Looper.getMainLooper())
             handler.postDelayed({
                 medication.taken = false
@@ -187,6 +198,7 @@ class MedicationAdapter(
 
                 // Uncheck the checkbox in the UI
                 holder.takenCheckBox.isChecked = false
+                Log.d("MedicationAdapter", "Medication ID: ${medication.id} unchecked at ${System.currentTimeMillis()}")
             }, delay)
         }
     }
@@ -224,4 +236,29 @@ class MedicationAdapter(
 
         return null
     }
+
+    // Function to save medication name and timestamp to the database
+    private fun saveMedicationTimestamp(medication: Medication, timestamp: Long) {
+        // Log the current timestamps for debugging
+        Log.d("MedicationAdapter", "Current pastTimestamps for medication ID: ${medication.id} before update: ${medication.pastTimestamps.joinToString(",")}")
+
+        // Add the new timestamp to the pastTimestamps list if it doesn't already exist
+        val updatedTimestamps = medication.pastTimestamps.toMutableList()
+        if (!updatedTimestamps.contains(timestamp)) {
+            updatedTimestamps.add(timestamp)
+        }
+
+        // Update the medication's pastTimestamps with the new list
+        medication.pastTimestamps = updatedTimestamps
+
+        // Log the updated timestamps for debugging
+        Log.d("MedicationAdapter", "Updated pastTimestamps for medication ID: ${medication.id}: ${updatedTimestamps.joinToString(",")}")
+
+        // Save the updated medication object
+        medicationViewModel.updateMedication(medication)
+        Log.d("MedicationAdapter", "Saved updated medication with new timestamp for medication ID: ${medication.id}")
+    }
+
+
 }
+

@@ -2,7 +2,11 @@ package com.example.reminder_data_flair
 
 import androidx.room.Entity
 import androidx.room.PrimaryKey
+import androidx.room.TypeConverter
+import java.text.SimpleDateFormat
 import java.util.Calendar
+import java.util.Date
+import java.util.Locale
 
 @Entity(tableName = "medications")
 data class Medication(
@@ -16,7 +20,8 @@ data class Medication(
     val dosagePerNewBottle: Int,
     var taken: Boolean,
     var lastTakenDate: Long? = initializeDefaultLastTakenDate(),
-    var currentDosageCount: Int // Track the current dosage count
+    var currentDosageCount: Int, // Track the current dosage count
+    var pastTimestamps: List<Long> = listOf() // Track the history of timestamps when medication was taken
 ) {
     companion object {
         // Function to get the default date for lastTakenDate
@@ -26,6 +31,41 @@ data class Medication(
                 set(Calendar.MILLISECOND, 0)
             }
             return calendar.timeInMillis
+        }
+    }
+}
+
+// Converter for storing List<Long> as a String in the database
+class Converters {
+
+    // Converts a timestamp (Long) to a formatted date-time string
+    @TypeConverter
+    fun fromTimestampToString(timestamp: Long): String {
+        val sdf = SimpleDateFormat("MM/dd/yy h:mm a", Locale.getDefault())
+        return sdf.format(Date(timestamp))
+    }
+
+
+    // Converts a formatted date-time string back to a timestamp (Long)
+    @TypeConverter
+    fun fromStringToTimestamp(dateString: String): Long {
+        val sdf = SimpleDateFormat("MM/dd/yy h:mm a", Locale.getDefault())
+        return sdf.parse(dateString)?.time ?: 0L
+    }
+
+    // Converts a list of Longs (timestamps) to a comma-separated string
+    @TypeConverter
+    fun fromTimestampList(timestamps: List<Long>): String {
+        return timestamps.joinToString(",")
+    }
+
+    // Converts a comma-separated string back to a list of Longs (timestamps)
+    @TypeConverter
+    fun toTimestampList(data: String): List<Long> {
+        return if (data.isEmpty()) {
+            emptyList()
+        } else {
+            data.split(",").map { it.toLong() }
         }
     }
 }

@@ -9,21 +9,9 @@ class MedicationViewModel(private val repository: MedicationRepository) : ViewMo
 
     val allMedications: LiveData<List<Medication>> = repository.allMedications
 
-    fun insert(medication: Medication) {
-        viewModelScope.launch {
-            repository.insertMedication(medication)
-        }
-    }
-
     fun updateMedication(medication: Medication) {
         viewModelScope.launch {
             repository.updateMedication(medication)
-        }
-    }
-
-    fun updateMedications(medications: List<Medication>) {
-        viewModelScope.launch {
-            repository.updateMedications(medications)
         }
     }
 
@@ -31,5 +19,25 @@ class MedicationViewModel(private val repository: MedicationRepository) : ViewMo
         viewModelScope.launch {
             repository.deleteMedication(medicationId)
         }
+    }
+
+    fun updateMedicationTakenStatus(medicationId: Int, timestamp: Long) {
+        viewModelScope.launch {
+            // Get the medication directly if repository returns a LiveData<Medication>
+            val medicationLiveData = repository.getMedicationById(medicationId)
+            medicationLiveData.value?.let { medication ->
+                // Update the pastTimestamps list
+                val currentTimestamps = medication.pastTimestamps.toMutableList()
+                currentTimestamps.add(timestamp)
+                medication.pastTimestamps = currentTimestamps
+
+                // Update medication in the repository
+                repository.updateMedication(medication)
+            }
+        }
+    }
+
+    fun getMedicationById(id: Int): LiveData<Medication> {
+        return repository.getMedicationById(id)
     }
 }

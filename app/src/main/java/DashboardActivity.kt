@@ -21,6 +21,7 @@ class DashboardActivity : AppCompatActivity() {
 
     private lateinit var medicationRecyclerView: RecyclerView
     private lateinit var addMedicationButton: Button
+    private lateinit var viewHistoryButton: Button
     private lateinit var medicationAdapter: MedicationAdapter
     private lateinit var medicationViewModel: MedicationViewModel
 
@@ -37,13 +38,22 @@ class DashboardActivity : AppCompatActivity() {
 
         medicationRecyclerView = findViewById(R.id.rvMedicationSchedule)
         addMedicationButton = findViewById(R.id.btnAddMedication)
+        viewHistoryButton = findViewById(R.id.btnViewHistory)
 
         // Set up RecyclerView
         val medicationDao = MyApp.database.medicationDao()
         val repository = MedicationRepository(medicationDao)
         medicationViewModel = ViewModelProvider(this, MedicationViewModelFactory(repository)).get(MedicationViewModel::class.java)
 
-        medicationAdapter = MedicationAdapter(this, mutableListOf(), medicationViewModel) // Pass the ViewModel
+        // Initialize the MedicationAdapter with the checkbox listener
+        medicationAdapter = MedicationAdapter(this, mutableListOf(), medicationViewModel) { medication ->
+            val currentTimestamp = System.currentTimeMillis()
+            Log.d("DashboardActivity", "Checkbox clicked for medication: ${medication.name} at $currentTimestamp")
+
+            // Update medication status and save timestamp
+            medicationViewModel.updateMedicationTakenStatus(medication.id, currentTimestamp)
+        }
+
         medicationRecyclerView.adapter = medicationAdapter
         medicationRecyclerView.layoutManager = LinearLayoutManager(this)
 
@@ -59,6 +69,18 @@ class DashboardActivity : AppCompatActivity() {
 
                 // Update adapter with sorted list
                 medicationAdapter.updateList(sortedMedications)
+
+                // Enable the history button and set its click listener
+                if (sortedMedications.isNotEmpty()) {
+                    viewHistoryButton.isEnabled = true
+                    viewHistoryButton.setOnClickListener {
+                        val intent = Intent(this, MedicationHistoryActivity::class.java)
+                        intent.putExtra("medication_id", sortedMedications[0].id) // Pass the first medication's ID
+                        startActivity(intent)
+                    }
+                } else {
+                    viewHistoryButton.isEnabled = false
+                }
             }
         }
 
@@ -105,7 +127,6 @@ class DashboardActivity : AppCompatActivity() {
         }
     }
 
-    // Sorting medications by relevance to current time and date
     private fun sortMedicationsByRelevance(medications: List<Medication>): List<Medication> {
         val currentTime = Calendar.getInstance()
 
@@ -115,7 +136,6 @@ class DashboardActivity : AppCompatActivity() {
         })
     }
 
-    // Determine the next scheduled time for the medication
     private fun getNextScheduledTime(medication: Medication, currentTime: Calendar): Calendar? {
         val daysMap = mapOf(
             'S' to Calendar.SUNDAY,
@@ -129,7 +149,6 @@ class DashboardActivity : AppCompatActivity() {
 
         val sortedDays = medication.days.mapNotNull { daysMap[it] }.sorted()
 
-        // Try to find the next valid time today or in the future
         for (day in sortedDays) {
             val targetTime = Calendar.getInstance()
             targetTime.set(Calendar.DAY_OF_WEEK, day)
@@ -147,7 +166,6 @@ class DashboardActivity : AppCompatActivity() {
             }
         }
 
-        // If no valid time is found today, find the earliest in the week
         for (day in sortedDays) {
             val targetTime = Calendar.getInstance()
             targetTime.set(Calendar.DAY_OF_WEEK, day)

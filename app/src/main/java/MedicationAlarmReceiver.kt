@@ -34,7 +34,7 @@ class MedicationAlarmReceiver : BroadcastReceiver() {
         val pendingIntent = PendingIntent.getActivity(context, 0, notificationIntent, pendingIntentFlags)
 
         val notification = Notification.Builder(context, MyApp.CHANNEL_ID)
-            .setSmallIcon(R.drawable.ic_launcher_background)
+            .setSmallIcon(R.drawable.app_notif_icon)
             .setContentTitle("Time to take your medication")
             .setContentText("It's time to take your medication: $medicationName")
             .setContentIntent(pendingIntent)

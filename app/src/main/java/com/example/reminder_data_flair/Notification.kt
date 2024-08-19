@@ -14,7 +14,7 @@ package com.example.reminder_data_flair
         class Notification: BroadcastReceiver() {
             override fun onReceive(context: Context, intent: Intent?) {
                 val notification = NotificationCompat.Builder(context, channelID)
-                    .setSmallIcon(R.drawable.ic_launcher_foreground)
+                    .setSmallIcon(R.drawable.app_notif_icon)
                     .setContentTitle(intent?.getStringExtra(titleExtra))
                     .setContentText(intent?.getStringExtra(messageExtra))
                     .build()

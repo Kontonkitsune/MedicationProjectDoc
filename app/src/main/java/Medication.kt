@@ -46,13 +46,6 @@ class Converters {
     }
 
 
-    // Converts a formatted date-time string back to a timestamp (Long)
-    @TypeConverter
-    fun fromStringToTimestamp(dateString: String): Long {
-        val sdf = SimpleDateFormat("MM/dd/yy h:mm a", Locale.getDefault())
-        return sdf.parse(dateString)?.time ?: 0L
-    }
-
     // Converts a list of Longs (timestamps) to a comma-separated string
     @TypeConverter
     fun fromTimestampList(timestamps: List<Long>): String {

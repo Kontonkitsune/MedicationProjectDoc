@@ -37,7 +37,4 @@ class MedicationViewModel(private val repository: MedicationRepository) : ViewMo
         }
     }
 
-    fun getMedicationById(id: Int): LiveData<Medication> {
-        return repository.getMedicationById(id)
-    }
 }
